@@ -4,7 +4,6 @@ from pygame.locals import *
 import config as conf
 
 
-# pygame.font.init()
 
 # a = board.Board()
 # print a.direction(1, 2, 'UpLeft')
@@ -48,23 +47,17 @@ class Display(object):
 					pygame.draw.circle(self.screen, color2, coord, self.piece_size / 4)
 
 		if self.stopGame:
-			# for temp
-			self.screen.blit(self.text_surface_obj, self.text_rect_obj)
-			# show messages?????????????????
-			# show restart button
-			# maybe show some statistical data???
-			pass
+			self.screen.blit(self.textbox, self.textbox_obj)
 
 		pygame.display.update()
 
-		# update later, change position
+
 	def show_msg(self, msg):
 		self.stopGame = True
-		self.font_obj = pygame.font.Font('freesansbold.ttf', 44)
-		self.text_surface_obj = self.font_obj.render(msg, True, conf.DARK, conf.BLACK)
-		self.text_rect_obj = self.text_surface_obj.get_rect()
-		self.text_rect_obj.center = (conf.WINDOWSIZE / 2, conf.WINDOWSIZE / 2)
-
+		self.text = pygame.font.SysFont("comicsansms", 27)
+		self.textbox = self.text.render(msg, True, conf.DARK, conf.BLACK)
+		self.textbox_obj = self.textbox.get_rect()
+		self.textbox_obj.center = (conf.WINDOWSIZE / 2, conf.WINDOWSIZE / 2)
 
 	def mouse_to_grid(self, (i, j)):
 		return [i / self.grid_size, j / self.grid_size]

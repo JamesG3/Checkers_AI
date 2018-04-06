@@ -14,6 +14,10 @@ class Board(object):
 		self.checkerBoard = [[0 for _ in xrange(6)] for _ in xrange(6)]
 		self._create()
 
+		# OR (conf.BOARDSIZE/2) * (conf.BOARDSIZE/2 - 1)
+		self.white_piece_Num = 6
+		self.black_piece_Num = 6
+
 	def _create(self):
 		for i in xrange(6):
 			for j in xrange(6):
@@ -35,7 +39,6 @@ class Board(object):
 		return
 
 
-
 	def move(self, start, end):				# move piece from start to end coordinate
 		s_i, s_j = start[0], start[1]
 		e_i, e_j = end[0], end[1]
@@ -44,10 +47,15 @@ class Board(object):
 
 	def remove(self, piece):
 		i, j = piece[0], piece[1]
+		if self.checkerBoard[i][j].piece.player == "white":
+			self.white_piece_Num -= 1
+		else:
+			self.black_piece_Num -= 1
+			
 		self.checkerBoard[i][j].piece = None
 
 
-	def direction(self, i, j, moveto):
+	def _direction(self, i, j, moveto):
 		return {'UpLeft': lambda: (i-1, j-1),
 				'UpRight': lambda: (i+1, j-1),
 				'DownLeft': lambda: (i-1, j+1),
@@ -58,8 +66,54 @@ class Board(object):
 		return (-1 < i < 6) and (-1 < j < 6)
 
 
+	def check_jump(self, player):		# check whether jump exists
+		jump_list = []
+
+		for i in xrange(6):
+			for j in xrange(6):
+				if self.checkerBoard[i][j].piece\
+					and self.checkerBoard[i][j].piece.player == player:
+
+					if player == "white":
+						adversary = "black"
+						L_move1 = self._direction(i, j, 'DownLeft')
+						R_move1 = self._direction(i, j, 'DownRight')
+						L_move2 = self._direction(L_move1[0], L_move1[1], 'DownLeft')
+						R_move2 = self._direction(R_move1[0], R_move1[1], 'DownRight')
+						L1_i, L1_j, R1_i, R1_j = L_move1[0], L_move1[1], R_move1[0], R_move1[1]
+						L2_i, L2_j, R2_i, R2_j = L_move2[0], L_move2[1], R_move2[0], R_move2[1]
+					else:
+						adversary = "white"
+						L_move1 = self._direction(i, j, 'UpLeft')
+						R_move1 = self._direction(i, j, 'UpRight')
+						L_move2 = self._direction(L_move1[0], L_move1[1], 'UpLeft')
+						R_move2 = self._direction(R_move1[0], R_move1[1], 'UpRight')
+						L1_i, L1_j, R1_i, R1_j = L_move1[0], L_move1[1], R_move1[0], R_move1[1]
+						L2_i, L2_j, R2_i, R2_j = L_move2[0], L_move2[1], R_move2[0], R_move2[1]
+
+					if self._valid_position(L2_i, L2_j) or self._valid_position(R2_i, R2_j):
+						if self._valid_position(L2_i, L2_j)\
+							and self.checkerBoard[L1_i][L1_j].piece\
+							and self.checkerBoard[L1_i][L1_j].piece.player == adversary\
+							and self.checkerBoard[L2_i][L2_j].piece is None:
+
+							jump_list.append([i, j])
+							# return True
+
+						if self._valid_position(R2_i, R2_j)\
+							and self.checkerBoard[R1_i][R1_j].piece\
+							and self.checkerBoard[R1_i][R1_j].piece.player == adversary\
+							and self.checkerBoard[R2_i][R2_j].piece is None:
+							
+							jump_list.append([i, j])
+							# return True
+		return jump_list
+		# return False
+
+
+
 	def valid_moves(self, i, j, jump = 0):		# return all valid moves for self.checkerBoard[i][j]
-		print i,j
+		# print i,j
 		cur_grid = self.checkerBoard[i][j]
 		if cur_grid.piece == None:					# if no piece in that grid
 			return []
@@ -68,135 +122,93 @@ class Board(object):
 		if jump:			# if current piece is from elsewhere after one jump, 
 							# then check whether there are other place to jump.
 			# computer move
-			if cur_grid.piece.player == "white":    					
-				L_move1 = self.direction(i, j, 'DownLeft')
-				R_move1 = self.direction(i, j, 'DownRight')
-				L_move2 = self.direction(L_move1[0], L_move1[1], 'DownLeft')
-				R_move2 = self.direction(R_move1[0], R_move1[1], 'DownRight')
+			if cur_grid.piece.player == "white":
+				adversary = "black"
+				L_move1 = self._direction(i, j, 'DownLeft')
+				R_move1 = self._direction(i, j, 'DownRight')
+				L_move2 = self._direction(L_move1[0], L_move1[1], 'DownLeft')
+				R_move2 = self._direction(R_move1[0], R_move1[1], 'DownRight')
 				L1_i, L1_j, R1_i, R1_j = L_move1[0], L_move1[1], R_move1[0], R_move1[1]
 				L2_i, L2_j, R2_i, R2_j = L_move2[0], L_move2[1], R_move2[0], R_move2[1]
 
-				if (self._valid_position(L2_i, L2_j))\
-					and self.checkerBoard[L1_i][L1_j].piece\
-					and self.checkerBoard[L1_i][L1_j].piece.player == "black"\
-					and self.checkerBoard[L2_i][L2_j].piece is None:					# empty
-
-					valid_moves.append([L2_i, L2_j])
-
-				if self._valid_position(R2_i, R2_j)\
-					and self.checkerBoard[R1_i][R1_j].piece\
-					and self.checkerBoard[R1_i][R1_j].piece.player == "black"\
-					and self.checkerBoard[R2_i][R2_j].piece is None:					# empty
-
-					valid_moves.append([R2_i, R2_j])
-			
-			# human move
-			elif cur_grid.piece.player == "black":
-				L_move1 = self.direction(i, j, 'UpLeft')
-				R_move1 = self.direction(i, j, 'UpRight')
-				L_move2 = self.direction(L_move1[0], L_move1[1], 'UpLeft')
-				R_move2 = self.direction(R_move1[0], R_move1[1], 'UpRight')
+			else:
+				adversary = "white"
+				L_move1 = self._direction(i, j, 'UpLeft')
+				R_move1 = self._direction(i, j, 'UpRight')
+				L_move2 = self._direction(L_move1[0], L_move1[1], 'UpLeft')
+				R_move2 = self._direction(R_move1[0], R_move1[1], 'UpRight')
 				L1_i, L1_j, R1_i, R1_j = L_move1[0], L_move1[1], R_move1[0], R_move1[1]
 				L2_i, L2_j, R2_i, R2_j = L_move2[0], L_move2[1], R_move2[0], R_move2[1]
 
-				if self._valid_position(L2_i, L2_j)\
-					and self.checkerBoard[L1_i][L1_j].piece\
-					and self.checkerBoard[L1_i][L1_j].piece.player == "white"\
-					and self.checkerBoard[L2_i][L2_j].piece is None:				# empty
 
-					valid_moves.append([L2_i, L2_j])
+			if (self._valid_position(L2_i, L2_j))\
+				and self.checkerBoard[L1_i][L1_j].piece\
+				and self.checkerBoard[L1_i][L1_j].piece.player == adversary\
+				and self.checkerBoard[L2_i][L2_j].piece is None:					# empty
 
-				if self._valid_position(R2_i, R2_j)\
-					and self.checkerBoard[R1_i][R1_j].piece\
-					and self.checkerBoard[R1_i][R1_j].piece.player == "white"\
-					and self.checkerBoard[R2_i][R2_j].piece is None:				# empty
+				valid_moves.append([L2_i, L2_j])
 
-					valid_moves.append([R2_i, R2_j])
+			if self._valid_position(R2_i, R2_j)\
+				and self.checkerBoard[R1_i][R1_j].piece\
+				and self.checkerBoard[R1_i][R1_j].piece.player == adversary\
+				and self.checkerBoard[R2_i][R2_j].piece is None:					# empty
+
+				valid_moves.append([R2_i, R2_j])
 
 
 		else:
 			# computer move
 			jump_exist = 0		# jump step has priority
+			player = cur_grid.piece.player
 
 			if cur_grid.piece.player == "white":
-				L_move1 = self.direction(i, j, 'DownLeft')
-				R_move1 = self.direction(i, j, 'DownRight')
-				L_move2 = self.direction(L_move1[0], L_move1[1], 'DownLeft')
-				R_move2 = self.direction(R_move1[0], R_move1[1], 'DownRight')
+				adversary = "black"
+				L_move1 = self._direction(i, j, 'DownLeft')
+				R_move1 = self._direction(i, j, 'DownRight')
+				L_move2 = self._direction(L_move1[0], L_move1[1], 'DownLeft')
+				R_move2 = self._direction(R_move1[0], R_move1[1], 'DownRight')
 				L1_i, L1_j, R1_i, R1_j = L_move1[0], L_move1[1], R_move1[0], R_move1[1]
 				L2_i, L2_j, R2_i, R2_j = L_move2[0], L_move2[1], R_move2[0], R_move2[1]
 
-
-
-				if self._valid_position(L2_i, L2_j) or self._valid_position(R2_i, R2_j):
-					if self._valid_position(L2_i, L2_j)\
-						and self.checkerBoard[L1_i][L1_j].piece\
-						and self.checkerBoard[L1_i][L1_j].piece.player == "black"\
-						and self.checkerBoard[L2_i][L2_j].piece is None:
-
-						jump_exist = 1
-						valid_moves.append([L2_i, L2_j])
-					
-					if self._valid_position(R2_i, R2_j)\
-						and self.checkerBoard[R1_i][R1_j].piece\
-						and self.checkerBoard[R1_i][R1_j].piece.player == "black"\
-						and self.checkerBoard[R2_i][R2_j].piece is None:
-
-						jump_exist = 1
-						valid_moves.append([R2_i, R2_j])
-
-
-				if jump_exist == 0:		# there is no jump step
-					if self._valid_position(L1_i, L1_j)\
-						and self.checkerBoard[L1_i][L1_j].piece == None:
-
-						valid_moves.append([L1_i, L1_j])
-
-					if self._valid_position(R1_i, R1_j)\
-						and self.checkerBoard[R1_i][R1_j].piece == None:
-
-						valid_moves.append([R1_i, R1_j])
-
-
-			elif cur_grid.piece.player == "black":
-				L_move1 = self.direction(i, j, 'UpLeft')
-				R_move1 = self.direction(i, j, 'UpRight')
-				L_move2 = self.direction(L_move1[0], L_move1[1], 'UpLeft')
-				R_move2 = self.direction(R_move1[0], R_move1[1], 'UpRight')
+			else:
+				adversary = "white"
+				L_move1 = self._direction(i, j, 'UpLeft')
+				R_move1 = self._direction(i, j, 'UpRight')
+				L_move2 = self._direction(L_move1[0], L_move1[1], 'UpLeft')
+				R_move2 = self._direction(R_move1[0], R_move1[1], 'UpRight')
 				L1_i, L1_j, R1_i, R1_j = L_move1[0], L_move1[1], R_move1[0], R_move1[1]
 				L2_i, L2_j, R2_i, R2_j = L_move2[0], L_move2[1], R_move2[0], R_move2[1]
 
-				if self._valid_position(L2_i, L2_j) or self._valid_position(R2_i, R2_j):
-					if self._valid_position(L2_i, L2_j)\
-						and self.checkerBoard[L1_i][L1_j].piece\
-						and self.checkerBoard[L1_i][L1_j].piece.player == "white"\
-						and self.checkerBoard[L2_i][L2_j].piece is None:
+			if self._valid_position(L2_i, L2_j) or self._valid_position(R2_i, R2_j):
+				if self._valid_position(L2_i, L2_j)\
+					and self.checkerBoard[L1_i][L1_j].piece\
+					and self.checkerBoard[L1_i][L1_j].piece.player == adversary\
+					and self.checkerBoard[L2_i][L2_j].piece is None:
 
-						jump_exist = 1
-						valid_moves.append([L2_i, L2_j])
-					
-					# print self._valid_position(R2_i, R2_j)
-					# print R2_i, R2_j
-					if self._valid_position(R2_i, R2_j)\
-						and self.checkerBoard[R1_i][R1_j].piece\
-						and self.checkerBoard[R1_i][R1_j].piece.player == "white"\
-						and self.checkerBoard[R2_i][R2_j].piece is None:
+					jump_exist = 1
+					valid_moves.append([L2_i, L2_j])
+				
+				if self._valid_position(R2_i, R2_j)\
+					and self.checkerBoard[R1_i][R1_j].piece\
+					and self.checkerBoard[R1_i][R1_j].piece.player == adversary\
+					and self.checkerBoard[R2_i][R2_j].piece is None:
 
-						jump_exist = 1
-						valid_moves.append([R2_i, R2_j])
+					jump_exist = 1
+					valid_moves.append([R2_i, R2_j])
+
+			if jump_exist == 0:		# there is no jump step
+				if self._valid_position(L1_i, L1_j)\
+					and self.checkerBoard[L1_i][L1_j].piece == None:
+
+					valid_moves.append([L1_i, L1_j])
+
+				if self._valid_position(R1_i, R1_j)\
+					and self.checkerBoard[R1_i][R1_j].piece == None:
+
+					valid_moves.append([R1_i, R1_j])
 
 
-				if jump_exist == 0:		# there is no jump step
-					if self._valid_position(L1_i, L1_j)\
-						and self.checkerBoard[L1_i][L1_j].piece == None:
-
-						valid_moves.append([L1_i, L1_j])
-
-					if self._valid_position(R1_i, R1_j)\
-						and self.checkerBoard[R1_i][R1_j].piece == None:
-
-						valid_moves.append([R1_i, R1_j])
-
+		# print valid_moves
 		return valid_moves
 			
 
