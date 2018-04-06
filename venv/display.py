@@ -41,7 +41,7 @@ class Display(object):
 					pygame.draw.circle(self.screen, color2, coord, self.piece_size / 4)
 
 		if self.stopGame:
-			self.screen.blit(self.textbox, self.textbox_obj)
+			self.screen.blit(self.textbox, self.textbox_rect)
 
 		pygame.display.update()
 
@@ -49,9 +49,9 @@ class Display(object):
 	def show_msg(self, msg):
 		self.stopGame = True
 		self.text = pygame.font.SysFont("comicsansms", 27)
-		self.textbox = self.text.render(msg, True, conf.DARK, conf.BLACK)
-		self.textbox_obj = self.textbox.get_rect()
-		self.textbox_obj.center = (conf.WINDOWSIZE / 2, conf.WINDOWSIZE / 2)
+		self.textbox = self.text.render(msg, True, conf.BLACK)
+		self.textbox_rect = self.textbox.get_rect()
+		self.textbox_rect.center = (conf.WINDOWSIZE / 2, conf.WINDOWSIZE / 2)
 
 	# convert mouse coord into a coord on checkerBoard
 	def mouse_to_grid(self, mouse):
