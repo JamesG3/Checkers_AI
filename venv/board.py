@@ -11,7 +11,7 @@ class Grid(object):
 		  
 class Board(object):
 	def __init__(self):
-		self.checkerBoard = [[-1 for _ in xrange(6)] for _ in xrange(6)]
+		self.checkerBoard = [[0 for _ in xrange(6)] for _ in xrange(6)]
 		self._create()
 
 	def _create(self):
@@ -27,11 +27,12 @@ class Board(object):
 					self.checkerBoard[i][j] = Grid("W")
 
 				if self.checkerBoard[i][j].color == "B":
-					if i<3:
+					if j<2:
 						self.checkerBoard[i][j].piece = Piece("white")
-					elif 3<i<6:
+					elif 3<j<6:
 						self.checkerBoard[i][j].piece = Piece("black")
-			return
+			
+		return
 
 
 
@@ -41,19 +42,24 @@ class Board(object):
 		self.checkerBoard[e_i][e_j].piece = self.checkerBoard[s_i][s_j].piece
 		self.checkerBoard[s_i][s_j].piece = None
 
+	def remove(self, piece):
+		i, j = piece[0], piece[1]
+		self.checkerBoard[i][j].piece = None
+
 
 	def direction(self, i, j, moveto):
 		return {'UpLeft': lambda: (i-1, j-1),
-				'UpRight': lambda: (i-1, j+1),
-				'DownLeft': lambda: (i+1, j-1),
+				'UpRight': lambda: (i+1, j-1),
+				'DownLeft': lambda: (i-1, j+1),
 				'DownRight': lambda: (i+1, j+1),
 		}.get(moveto)()
 
 	def _valid_position(self, i, j):
-		return (-1 < i < 6) and (-1 < i < 6)
+		return (-1 < i < 6) and (-1 < j < 6)
 
 
-	def valid_moves(self, i, j, jump = False):		# return all valid moves for self.checkerBoard[i][j]
+	def valid_moves(self, i, j, jump = 0):		# return all valid moves for self.checkerBoard[i][j]
+		print i,j
 		cur_grid = self.checkerBoard[i][j]
 		if cur_grid.piece == None:					# if no piece in that grid
 			return []
@@ -120,6 +126,8 @@ class Board(object):
 				L1_i, L1_j, R1_i, R1_j = L_move1[0], L_move1[1], R_move1[0], R_move1[1]
 				L2_i, L2_j, R2_i, R2_j = L_move2[0], L_move2[1], R_move2[0], R_move2[1]
 
+
+
 				if self._valid_position(L2_i, L2_j) or self._valid_position(R2_i, R2_j):
 					if self._valid_position(L2_i, L2_j)\
 						and self.checkerBoard[L1_i][L1_j].piece\
@@ -167,6 +175,8 @@ class Board(object):
 						jump_exist = 1
 						valid_moves.append([L2_i, L2_j])
 					
+					# print self._valid_position(R2_i, R2_j)
+					# print R2_i, R2_j
 					if self._valid_position(R2_i, R2_j)\
 						and self.checkerBoard[R1_i][R1_j].piece\
 						and self.checkerBoard[R1_i][R1_j].piece.player == "white"\

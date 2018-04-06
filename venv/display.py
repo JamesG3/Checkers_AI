@@ -4,7 +4,7 @@ from pygame.locals import *
 import config as conf
 
 
-pygame.font.init()
+# pygame.font.init()
 
 # a = board.Board()
 # print a.direction(1, 2, 'UpLeft')
@@ -37,9 +37,10 @@ class Display(object):
 		self.screen.blit(self.background, (0, 0))			# draw a new clean board above the previous board
 		self._show_moves(cur_piece, valid_moves)
 		# draw all pieces
-		for i,row in enumerate(board):
+		# print board.checkerBoard
+		for i,row in enumerate(board.checkerBoard):
 			for j,grid in enumerate(row):
-				if gird.piece:
+				if grid.piece:
 					color1 = conf.BLACK if grid.piece.player == "black" else conf.WHITE
 					color2 = conf.WHITE if grid.piece.player == "black" else conf.BLACK
 					coord = (i * self.grid_size + self.piece_size, j * self.grid_size + self.piece_size)
@@ -60,15 +61,13 @@ class Display(object):
 	def show_msg(self, msg):
 		self.stopGame = True
 		self.font_obj = pygame.font.Font('freesansbold.ttf', 44)
-		self.text_surface_obj = self.font_obj.render(msg, True, HIGH, conf.BLACK)
+		self.text_surface_obj = self.font_obj.render(msg, True, conf.DARK, conf.BLACK)
 		self.text_rect_obj = self.text_surface_obj.get_rect()
-		self.text_rect_obj.center = (self.window_size / 2, self.window_size / 2)
+		self.text_rect_obj.center = (conf.WINDOWSIZE / 2, conf.WINDOWSIZE / 2)
 
 
-
-
-
-
+	def mouse_to_grid(self, (i, j)):
+		return [i / self.grid_size, j / self.grid_size]
 
 
 
