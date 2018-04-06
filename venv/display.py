@@ -1,24 +1,19 @@
 import pygame
-# import board as b
 from pygame.locals import *
 import config as conf
 
 
-
-# a = board.Board()
-# print a.direction(1, 2, 'UpLeft')
 class Display(object):
 	def __init__(self):
-		# self.timer = pygame.time.Clock()
 		self.screen = pygame.display.set_mode((conf.WINDOWSIZE, conf.WINDOWSIZE))
-		self.background = pygame.image.load('images/board.png')
+		self.background = pygame.image.load(conf.BACKGROUND)
 		self.grid_size = conf.WINDOWSIZE / 6
 		self.piece_size = self.grid_size / 2
 
 		self.stopGame = False
 
 
-	# show all valid moves for current piece on board
+	# show all valid moves for selected piece
 	def _show_moves(self, cur_piece, valid_moves):
 		if not cur_piece:
 			return
@@ -31,12 +26,11 @@ class Display(object):
 			pygame.draw.rect(self.screen, conf.DARK, rect)
 	
 
-
 	def update_board(self, board, cur_piece, valid_moves):
 		self.screen.blit(self.background, (0, 0))			# draw a new clean board above the previous board
 		self._show_moves(cur_piece, valid_moves)
+		
 		# draw all pieces
-		# print board.checkerBoard
 		for i,row in enumerate(board.checkerBoard):
 			for j,grid in enumerate(row):
 				if grid.piece:
@@ -59,8 +53,9 @@ class Display(object):
 		self.textbox_obj = self.textbox.get_rect()
 		self.textbox_obj.center = (conf.WINDOWSIZE / 2, conf.WINDOWSIZE / 2)
 
-	def mouse_to_grid(self, (i, j)):
-		return [i / self.grid_size, j / self.grid_size]
+	# convert mouse coord into a coord on checkerBoard
+	def mouse_to_grid(self, mouse):
+		return [mouse[0] / self.grid_size, mouse[1] / self.grid_size]
 
 
 

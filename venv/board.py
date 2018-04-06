@@ -8,7 +8,6 @@ class Grid(object):
 		self.color = color
 		self.piece = piece
 		
-		  
 class Board(object):
 	def __init__(self):
 		self.checkerBoard = [[0 for _ in xrange(6)] for _ in xrange(6)]
@@ -18,6 +17,7 @@ class Board(object):
 		self.white_piece_Num = 6
 		self.black_piece_Num = 6
 
+	# initialize a checker Board
 	def _create(self):
 		for i in xrange(6):
 			for j in xrange(6):
@@ -39,12 +39,26 @@ class Board(object):
 		return
 
 
-	def move(self, start, end):				# move piece from start to end coordinate
+	# calculate coordinates after a move on selected direction
+	def _direction(self, i, j, moveto):
+		return {'UpLeft': lambda: (i-1, j-1),
+				'UpRight': lambda: (i+1, j-1),
+				'DownLeft': lambda: (i-1, j+1),
+				'DownRight': lambda: (i+1, j+1),
+		}.get(moveto)()
+
+	# check whether given position is valid in checkerBoard
+	def _valid_position(self, i, j):
+		return (-1 < i < 6) and (-1 < j < 6)
+
+	# move piece from start to end (coordinate)
+	def move(self, start, end):
 		s_i, s_j = start[0], start[1]
 		e_i, e_j = end[0], end[1]
 		self.checkerBoard[e_i][e_j].piece = self.checkerBoard[s_i][s_j].piece
 		self.checkerBoard[s_i][s_j].piece = None
 
+	# remove piece
 	def remove(self, piece):
 		i, j = piece[0], piece[1]
 		if self.checkerBoard[i][j].piece.player == "white":
@@ -54,19 +68,9 @@ class Board(object):
 			
 		self.checkerBoard[i][j].piece = None
 
-
-	def _direction(self, i, j, moveto):
-		return {'UpLeft': lambda: (i-1, j-1),
-				'UpRight': lambda: (i+1, j-1),
-				'DownLeft': lambda: (i-1, j+1),
-				'DownRight': lambda: (i+1, j+1),
-		}.get(moveto)()
-
-	def _valid_position(self, i, j):
-		return (-1 < i < 6) and (-1 < j < 6)
-
-
-	def check_jump(self, player):		# check whether jump exists
+	# return all jump step for given player
+	# e.g. [[1,2], [2,4]]
+	def check_jump(self, player):
 		jump_list = []
 
 		for i in xrange(6):
@@ -98,7 +102,6 @@ class Board(object):
 							and self.checkerBoard[L2_i][L2_j].piece is None:
 
 							jump_list.append([i, j])
-							# return True
 
 						if self._valid_position(R2_i, R2_j)\
 							and self.checkerBoard[R1_i][R1_j].piece\
@@ -106,14 +109,11 @@ class Board(object):
 							and self.checkerBoard[R2_i][R2_j].piece is None:
 							
 							jump_list.append([i, j])
-							# return True
-		return jump_list
-		# return False
 
+		return jump_list
 
 
 	def valid_moves(self, i, j, jump = 0):		# return all valid moves for self.checkerBoard[i][j]
-		# print i,j
 		cur_grid = self.checkerBoard[i][j]
 		if cur_grid.piece == None:					# if no piece in that grid
 			return []
@@ -207,8 +207,6 @@ class Board(object):
 
 					valid_moves.append([R1_i, R1_j])
 
-
-		# print valid_moves
 		return valid_moves
 			
 

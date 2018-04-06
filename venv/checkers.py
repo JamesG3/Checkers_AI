@@ -1,5 +1,5 @@
 import display
-import board as b
+import board
 import config as conf
 import sys
 import pygame
@@ -10,7 +10,7 @@ from pygame.locals import *
 class Checkers:
 	def __init__(self):
 		self.display = display.Display()
-		self.board = b.Board()
+		self.board = board.Board()
 
 		self.turn = None
 		self.valid_moves = []
@@ -29,8 +29,8 @@ class Checkers:
 		pygame.display.set_caption("Smart Checkers Robot")
 
 
+	# reset all variables
 	def _changeTurn(self):
-		# reset all variables
 		self.turn = "black" if self.turn == "white" else "white"
 		self.curr_piece = None
 		self.valid_moves = []
@@ -49,21 +49,24 @@ class Checkers:
 					return True
 		return False
 
-
+	# check winner and print message
 	def _check_winner(self):
 		if self.board.white_piece_Num > self.board.black_piece_Num:
-			self.display.show_msg("You lose! Click Right Key to Restart")
+			self.display.show_msg("Haha you lose! Click Right Key to Restart")
+			pygame.display.update()
 
 		elif self.board.white_piece_Num < self.board.black_piece_Num:
 			self.display.show_msg("Congratulation, you win! Click Right Key to Restart")
+			pygame.display.update()
 		
 		else:
 			self.display.show_msg("Draw! Click Right Key to Restart")
+			pygame.display.update()
 
-
+	# restart game, reset all global variables
 	def _restart(self):
 		self.display = display.Display()
-		self.board = b.Board()
+		self.board = board.Board()
 		self.turn = None
 		self.valid_moves = []
 		self.jump = 0
@@ -72,7 +75,6 @@ class Checkers:
 		self.Hum_noMove = 0
 		self._window()
 	
-
 
 	def game(self):
 		self.mouse = self.display.mouse_to_grid(pygame.mouse.get_pos())
@@ -84,7 +86,9 @@ class Checkers:
 
 			# select which player moves first
 			if self.turn is None:
-				self.display.show_msg("Who goes first? Left Key: U  Right Key: Me")
+				self.display.show_msg("Who goes first? Left Key: U / Right Key: Me")
+				pygame.display.update()
+
 				if pygame.mouse.get_pressed() == (1,0,0):
 					self.turn = "black"
 					self.display = display.Display()
