@@ -70,6 +70,7 @@ class Board(object):
 
 	# return all jump step for given player
 	# e.g. [[1,2], [2,4]]
+
 	def check_jump(self, player):
 		jump_list = []
 

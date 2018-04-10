@@ -8,7 +8,7 @@ from pygame.locals import *
 
 
 class Checkers:
-	def __init__(self):
+	def __init__(self):	
 		self.display = display.Display()
 		self.board = board.Board()
 
@@ -78,7 +78,6 @@ class Checkers:
 
 	def game(self):
 		self.mouse = self.display.mouse_to_grid(pygame.mouse.get_pos())
-
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				pygame.quit()
