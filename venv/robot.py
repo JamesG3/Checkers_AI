@@ -1,3 +1,7 @@
+import config as conf
+import board
+
+
 class Robot(object):
 	def __init__(self):
 		pass
@@ -48,12 +52,80 @@ class Robot(object):
 		# else return piece and it's best move
 		return piece, move
 
-	def heuristic(self, ):
+	def heuristic(self, board, player):
+		if player == "white":
+			return board.white_piece_Num
+		else:
+			return board.black_piece_Num
+		
 
-		pass
+	
 
-	def A_B_search(self, player):
-		pass
+	def A_B_search(self, board, moves):
+		# return final utility value and the curresponding next step 
+		v, action = self.max_value(baord, float('-Inf'), float('Inf'), conf.DEPTH)
+		return action
+		
 
-	def min_max(self, minMax, player):
-		pass
+	def max_value(self, board, alpha, beta, depth):
+		# if reach the depth, return utility value
+		if depth == 0:
+			return self.heuristic(board, player)
+		depth -= 1
+		moves = self.get_all_moves(board, player)
+		v = float('-Inf')
+		action = None
+
+		for piece, move in moves:
+			tmp_board = board
+			# make move on tmp board
+			new_val = self.min_value(tmp_board, alpha, beta, depth-1)
+			if v < new_val:
+				v = new_val
+				action = [piece, move]
+			if v >= beta:
+				return v
+			alpha = max(alpha, v)
+
+		return v, action
+
+
+	def min_value(self, baord, alpha, beta, depth):
+		# if reach the depth, return utility value
+		if depth == 0 or not board.black_piece_Num or not board.white_piece_Num:
+			return self.heuristic(board, player)
+		depth -= 1
+		moves = self.get_all_moves(board, player)
+		v = float('Inf')
+
+		for piece, move in moves:
+			tmp_board = board
+			# make move on tmp_board
+			new_val = self.max_value(tmp_board, alpha, beta, depth-1)[0]
+			if v < new_val:
+				v = new_val
+
+			if v <= alpha:
+				return v
+			beta = min(beta, v)
+
+		return v
+
+
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
