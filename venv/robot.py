@@ -1,14 +1,23 @@
 import config as conf
-import board
+import board as B
+import copy
 
 
 class Robot(object):
 	def __init__(self):
-		pass
+		self.board = B.Board()
 
-
-	def _get_all_moves(self, board, player):
+	def _get_all_moves(self, board, player, selected_piece = None):
 		moves = []
+		if selected_piece:
+			valid_moves = board.valid_moves(selected_piece[0], selected_piece[1], 1)
+
+			for move in valid_moves:
+				moves.append([selected_piece, move])
+			
+			return moves
+
+		# if there is no piece selected -> not step after jump step		
 		pieces = board.check_jump(player)
 
 		if pieces == []:	# if there is no jump step for current player
@@ -41,7 +50,7 @@ class Robot(object):
 
 	def _A_B_search(self, board, moves):
 		# return final utility value and the curresponding next step 
-		v, action = self._max_value(baord, float('-Inf'), float('Inf'), conf.DEPTH)
+		v, action = self._max_value(board, float('-Inf'), float('Inf'), conf.DEPTH)
 		return action
 
 
@@ -71,7 +80,7 @@ class Robot(object):
 			return v, action
 			
 
-	def _min_value(self, baord, alpha, beta, depth):
+	def _min_value(self, board, alpha, beta, depth):
 		# if reach the depth, return utility value
 		if depth == 0:
 			return self._heuristic(board)
@@ -96,7 +105,7 @@ class Robot(object):
 
 
 	def _make_move(self, board, piece, move):
-		tmp_board = board
+		tmp_board = copy.deepcopy(board)
 		if abs(piece[0] - move[0]) == 2:		# jump step
 			tmp_board.remove([(piece[0] + move[0]) / 2, (piece[1] + move[1]) / 2])
 		tmp_board.move(piece, move)
@@ -105,18 +114,25 @@ class Robot(object):
 
 
 		
-	def choose_move(self, board):
+	def choose_move(self, board, selected_piece = None):
 		# return None if no move
 		# return the best (piece, move)
-		moves = self._get_all_moves(board, 'white')
+
+		# if selected_piece:
+		# 	moves = self._get_all_moves(board, 'white', selected_piece)
+		# else:
+		# 	moves = self._get_all_moves(board, 'white')
+
+		moves = self._get_all_moves(board, 'white', selected_piece)
+		
 		if not moves:
-			return None
+			return []
 
 		if len(moves) == 1:
 			return moves[0]
 
 		else:
-			return self._A_B_search(board)
+			return self._A_B_search(board, moves)
 
 
 		# call _get_all_moves() to get moves
