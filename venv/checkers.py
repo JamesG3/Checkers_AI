@@ -86,6 +86,7 @@ class Checkers:
 					if event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed() == (0,0,1):
 						self._restart()
 					else:
+						# time.sleep(0.5)
 						continue
 		
 			else:			# if current player has move, reset Rbt_noMove and Hum_noMove
@@ -123,29 +124,31 @@ class Checkers:
 		check_move()
 
 		if self.turn == "white":
-			time.sleep(1)
 			if not self.jump:
 				action = self.robot.choose_move(self.board)
 				if action:
+					time.sleep(0.5)
 					piece, move = action
 					if abs(piece[0] - move[0]) == 2:	# jump step
 						self.jump = 1
 						self.board.remove([(piece[0] + move[0]) / 2, (piece[1] + move[1]) / 2])
 					self.board.move(piece, move)
 					self.curr_piece = move
+					time.sleep(0.5)
 				else:
 					self._changeTurn()
 				
 			if self.jump:
 				action = self.robot.choose_move(self.board, self.curr_piece)
 				if action:
+					time.sleep(0.5)
 					piece, move = action
 					self.board.remove([(piece[0] + move[0]) / 2, (piece[1] + move[1]) / 2])
 					self.board.move(piece, move)
 					self.curr_piece = move
-				# else:
-				# 	self._changeTurn()
-				# 	continue
+					time.sleep(0.5)
+					
+					return	# break the current loop, keep looking whether there are other jump steps
 
 			else:
 				self._changeTurn()
