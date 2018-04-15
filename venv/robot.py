@@ -5,7 +5,11 @@ import copy
 
 class Robot(object):
 	def __init__(self):
-		self.board = B.Board()
+		self.max_depth = 0
+		self.total_nodeNum = 0
+		self.max_prunNum = 0
+		self.min_prunNum = 0
+
 
 	def _get_all_moves(self, board, player, selected_piece = None):
 		moves = []
@@ -40,25 +44,37 @@ class Robot(object):
 		return moves 		# moves could be empty or only has one move
 
 
-	def _heuristic(self, board):
-		# if player == "white":
-			# return board.white_piece_Num
-		# else:
-			# return board.black_piece_Num
-		return board.white_piece_Num
+	def _heuristic(self, board, terminal = 0):
+		if terminal:
+			if board.white_piece_Num > board.black_piece_Num:		# win
+				return 1000
+			elif board.white_piece_Num < board.black_piece_Num:		# lose
+				return -1000
+			else:							# draw
+				return 0
+
+		else:
+			return board.white_piece_Num - board.black_piece_Num
 
 
 	def _A_B_search(self, board, moves):
 		# return final utility value and the curresponding next step 
-		v, action = self._max_value(board, float('-Inf'), float('Inf'), conf.DEPTH)
+		v, action = self._max_value(board, -1000, 1000, conf.DEPTH)
 		return action
 
 
 	def _max_value(self, board, alpha, beta, depth):
+		self.total_nodeNum += 1
+		self.max_depth = max(self.max_depth, conf.DEPTH - depth)
+
+		moves = self._get_all_moves(board, 'white')
+		if not moves:			# terminal state
+			return self._heuristic(board, 1), None
+
 		# if reach the depth, return utility value
 		if depth == 0:
 			return self._heuristic(board), None
-		moves = self._get_all_moves(board, 'white')
+
 		v = float('-Inf')
 		action = None
 
@@ -66,12 +82,13 @@ class Robot(object):
 			# make move on tmp board
 			tmp_board = self._make_move(board, piece, move)
 			new_val = self._min_value(tmp_board, alpha, beta, depth-1)
-			action = [piece, move]
+			
 			if v < new_val:
 				v = new_val
+				action = [piece, move]
 			
-			if v >= beta:
-				return v, action
+			if v >= beta:	# pruning
+				self.max_prunNum += 1
 			alpha = max(alpha, v)
 
 		if v == float('-Inf'):		# if there is no valid move -> terminal state
@@ -81,20 +98,30 @@ class Robot(object):
 			
 
 	def _min_value(self, board, alpha, beta, depth):
+		self.total_nodeNum += 1
+		self.max_depth = max(self.max_depth, conf.DEPTH - depth)
+
+		moves = self._get_all_moves(board, 'black')
+		if not moves:
+			return self._heuristic(board, 1)
+
 		# if reach the depth, return utility value
 		if depth == 0:
 			return self._heuristic(board)
-		moves = self._get_all_moves(board, 'black')
+		
 		v = float('Inf')
 
 		for piece, move in moves:
+			# print "black"
+			# print piece, move
 			# make move on tmp_board
 			tmp_board = self._make_move(board, piece, move)
 			new_val = self._max_value(tmp_board, alpha, beta, depth-1)[0]
-			if v < new_val:
+			if v > new_val:
 				v = new_val
 
-			if v <= alpha:
+			if v <= alpha:	# pruning
+				self.min_prunNum += 1
 				return v
 			beta = min(beta, v)
 
@@ -123,16 +150,30 @@ class Robot(object):
 		# else:
 		# 	moves = self._get_all_moves(board, 'white')
 
+		self.max_depth = 0				# reset all counters
+		self.total_nodeNum = 0
+		self.max_prunNum = 0
+		self.min_prunNum = 0
+
+
 		moves = self._get_all_moves(board, 'white', selected_piece)
 		
 		if not moves:
 			return []
 
-		if len(moves) == 1:
+		if len(moves) == 1:		# if only have one choice
 			return moves[0]
 
 		else:
-			return self._A_B_search(board, moves)
+			action = self._A_B_search(board, moves)
+			
+			print 'max_depth: ' + str(self.max_depth)
+			print 'total_nodeNum: ' + str(self.total_nodeNum)
+			print 'max_prunNum: ' + str(self.max_prunNum)
+			print 'min_prunNum: ' + str(self.min_prunNum)
+			print '======================'
+
+			return action
 
 
 		# call _get_all_moves() to get moves

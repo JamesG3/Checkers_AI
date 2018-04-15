@@ -13,5 +13,5 @@ WINDOWSIZE = 696
 
 
 # robot AI
-DEPTH = 1
+DEPTH = 6
 TIME_LIMIT = 15
