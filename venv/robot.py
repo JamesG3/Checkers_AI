@@ -14,6 +14,8 @@ class Robot(object):
 
 
 	def _get_all_moves(self, board, player, selected_piece = None):
+		# if selected_piece is not None, means this piece just did a capture move
+		# then we need to find if there is other capture moves for this piece
 		moves = []
 		if selected_piece:
 			valid_moves = board.valid_moves(selected_piece[0], selected_piece[1], 1)
@@ -48,11 +50,11 @@ class Robot(object):
 
 	def _heuristic(self, board, terminal = 0):
 		if terminal:
-			if board.white_piece_Num > board.black_piece_Num:		# win
+			if board.white_piece_Num > board.black_piece_Num:		# AI win
 				return 1000
-			elif board.white_piece_Num < board.black_piece_Num:		# lose
+			elif board.white_piece_Num < board.black_piece_Num:		# AI lose
 				return -1000
-			else:							# draw
+			else:													# draw
 				return 0
 
 		else:
@@ -70,10 +72,9 @@ class Robot(object):
 		self.max_depth = max(self.max_depth, self.DEPTH - depth)
 
 		moves = self._get_all_moves(board, 'white')
-		if not moves:			# terminal state
+		if not moves:									# terminal state
 			return self._heuristic(board, 1), None
-
-		# if reach the depth, return utility value
+														# if reach the depth, return utility value
 		if depth == 0:
 			return self._heuristic(board), None
 
@@ -146,11 +147,6 @@ class Robot(object):
 	def choose_move(self, board, selected_piece = None):
 		# return None if no move
 		# return the best (piece, move)
-
-		# if selected_piece:
-		# 	moves = self._get_all_moves(board, 'white', selected_piece)
-		# else:
-		# 	moves = self._get_all_moves(board, 'white')
 
 		self.max_depth = 0				# reset all counters
 		self.total_nodeNum = 0

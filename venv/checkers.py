@@ -105,7 +105,6 @@ class Checkers:
 						self._changeTurn()
 						# continue
 
-		self.mouse = self.display.mouse_to_grid(pygame.mouse.get_pos())
 		# select which player moves first
 		if self.turn is None:
 			if self.set_difficulty == 0:	# choose AI level
@@ -113,6 +112,10 @@ class Checkers:
 				pygame.display.update()
 
 				for event in pygame.event.get():
+					if event.type == QUIT:
+						pygame.quit()
+						sys.exit()
+
 					if event.type == KEYDOWN:
 						if event.unicode == '1':
 							self.robot = robot.Robot(conf.DEPTH_EASY)
@@ -127,21 +130,28 @@ class Checkers:
 						return
 
 			else:	# choose who goes first
-				self.display.show_msg("Who goes first? Left Key: U / Right Key: Me")
+				self.display.show_msg("Who goes first? 1: U / 2: Me")
 				pygame.display.update()
 
-				if pygame.mouse.get_pressed() == conf.LEFTKEY:
-					self.turn = "black"
-					self.display = display.Display()
-				elif pygame.mouse.get_pressed() == conf.RIGHTKEY:
-					self.turn = "white"
-					self.display = display.Display()
+				for event in pygame.event.get():
+					if event.type == QUIT:
+						pygame.quit()
+						sys.exit()
+					
+					if event.type == KEYDOWN:
+						if event.unicode == '1':
+							self.turn = "black"
+							self.display = display.Display()
+						elif event.unicode == '2':
+							self.turn = "white"
+							self.display = display.Display()
+					else:
+						return
 
 		# if all players cannot move, game is over.
 		# print self.Hum_noMove, self.Rbt_noMove
 
 		check_move()
-
 		if self.turn == "white":
 			if not self.jump:
 				action = self.robot.choose_move(self.board)
@@ -168,20 +178,20 @@ class Checkers:
 					time.sleep(0.5)
 					
 					return	# break the current loop, keep looking whether there are other jump steps
-
+				else:
+					self._changeTurn()	
 			else:
 				self._changeTurn()
 				
 
+		check_move()
+		self.mouse = self.display.mouse_to_grid(pygame.mouse.get_pos())
 
 		for event in pygame.event.get():
+
 			if event.type == QUIT:
 				pygame.quit()
 				sys.exit()
-			
-			check_move()
-			if event.type == KEYDOWN:
-				print pygame.key.get_pressed()
 
 			if event.type == MOUSEBUTTONDOWN:
 				if not self.jump:
@@ -213,18 +223,23 @@ class Checkers:
 						else:
 							self._changeTurn()
 
-				if self.jump:
+
+				while self.jump:
 					self.valid_moves = self.board.valid_moves(self.curr_piece[0], self.curr_piece[1], 1)
 					self.display.update_board(self.board, self.curr_piece, self.valid_moves)
 					if not self.valid_moves:
 						self._changeTurn()
+						return
 					
 					else:
-						if self.mouse in self.valid_moves:
-							self.board.move(self.curr_piece, self.mouse)
-							piece_rmv = ((self.curr_piece[0]+self.mouse[0])/2, (self.curr_piece[1]+self.mouse[1])/2)
-							self.board.remove(piece_rmv)
-							self.curr_piece = self.mouse
+						if pygame.mouse.get_pressed() == conf.LEFTKEY:
+							if self.mouse in self.valid_moves:
+								self.board.move(self.curr_piece, self.mouse)
+								piece_rmv = ((self.curr_piece[0]+self.mouse[0])/2, (self.curr_piece[1]+self.mouse[1])/2)
+								self.board.remove(piece_rmv)
+								self.curr_piece = self.mouse
+								continue
+						return
 
 
 	def main(self):
