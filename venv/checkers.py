@@ -12,8 +12,8 @@ class Checkers:
 	def __init__(self):	
 		self.display = display.Display()
 		self.board = board.Board()
-		self.robot = robot.Robot()
 
+		self.set_difficulty = 0
 		self.turn = None
 		self.valid_moves = []
 
@@ -75,6 +75,7 @@ class Checkers:
 		self.curr_piece = None
 		self.Rbt_noMove = 0
 		self.Hum_noMove = 0
+		self.set_difficulty = 0
 		self._window()
 	
 
@@ -82,12 +83,11 @@ class Checkers:
 		def check_move():
 			if self.Hum_noMove and self.Rbt_noMove:
 				self._check_winner()
-				for event in pygame.event.get():
-					if event.type == MOUSEBUTTONDOWN and pygame.mouse.get_pressed() == (0,0,1):
-						self._restart()
-					else:
+				if pygame.mouse.get_pressed() == conf.RIGHTKEY:
+					self._restart()
+				else:
 						# time.sleep(0.5)
-						continue
+					return
 		
 			else:			# if current player has move, reset Rbt_noMove and Hum_noMove
 				if self._has_move(self.turn):
@@ -108,15 +108,34 @@ class Checkers:
 		self.mouse = self.display.mouse_to_grid(pygame.mouse.get_pos())
 		# select which player moves first
 		if self.turn is None:
-			self.display.show_msg("Who goes first? Left Key: U / Right Key: Me")
-			pygame.display.update()
+			if self.set_difficulty == 0:	# choose AI level
+				self.display.show_msg("Choose AI level: Easy-1, Mid-2, Hard-3")
+				pygame.display.update()
 
-			if pygame.mouse.get_pressed() == (1,0,0):
-				self.turn = "black"
-				self.display = display.Display()
-			elif pygame.mouse.get_pressed() == (0,0,1):
-				self.turn = "white"
-				self.display = display.Display()
+				for event in pygame.event.get():
+					if event.type == KEYDOWN:
+						if event.unicode == '1':
+							self.robot = robot.Robot(conf.DEPTH_EASY)
+							self.set_difficulty = 1
+						elif event.unicode == '2':
+							self.robot = robot.Robot(conf.DEPTH_MID)
+							self.set_difficulty = 1
+						elif event.unicode == '3':
+							self.robot = robot.Robot(conf.DEPTH_HARD)
+							self.set_difficulty = 1
+					else:
+						return
+
+			else:	# choose who goes first
+				self.display.show_msg("Who goes first? Left Key: U / Right Key: Me")
+				pygame.display.update()
+
+				if pygame.mouse.get_pressed() == conf.LEFTKEY:
+					self.turn = "black"
+					self.display = display.Display()
+				elif pygame.mouse.get_pressed() == conf.RIGHTKEY:
+					self.turn = "white"
+					self.display = display.Display()
 
 		# if all players cannot move, game is over.
 		# print self.Hum_noMove, self.Rbt_noMove
@@ -161,6 +180,8 @@ class Checkers:
 				sys.exit()
 			
 			check_move()
+			if event.type == KEYDOWN:
+				print pygame.key.get_pressed()
 
 			if event.type == MOUSEBUTTONDOWN:
 				if not self.jump:

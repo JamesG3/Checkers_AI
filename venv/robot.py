@@ -4,11 +4,13 @@ import copy
 
 
 class Robot(object):
-	def __init__(self):
+	def __init__(self, AI_depth):
 		self.max_depth = 0
 		self.total_nodeNum = 0
 		self.max_prunNum = 0
 		self.min_prunNum = 0
+
+		self.DEPTH = AI_depth
 
 
 	def _get_all_moves(self, board, player, selected_piece = None):
@@ -59,13 +61,13 @@ class Robot(object):
 
 	def _A_B_search(self, board, moves):
 		# return final utility value and the curresponding next step 
-		v, action = self._max_value(board, -1000, 1000, conf.DEPTH)
+		v, action = self._max_value(board, -1000, 1000, self.DEPTH)
 		return action
 
 
 	def _max_value(self, board, alpha, beta, depth):
 		self.total_nodeNum += 1
-		self.max_depth = max(self.max_depth, conf.DEPTH - depth)
+		self.max_depth = max(self.max_depth, self.DEPTH - depth)
 
 		moves = self._get_all_moves(board, 'white')
 		if not moves:			# terminal state
@@ -99,7 +101,7 @@ class Robot(object):
 
 	def _min_value(self, board, alpha, beta, depth):
 		self.total_nodeNum += 1
-		self.max_depth = max(self.max_depth, conf.DEPTH - depth)
+		self.max_depth = max(self.max_depth, self.DEPTH - depth)
 
 		moves = self._get_all_moves(board, 'black')
 		if not moves:
