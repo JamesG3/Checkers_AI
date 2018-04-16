@@ -1,4 +1,4 @@
-# background pic
+# background picture
 BACKGROUND = 'images/board.png'
 
 

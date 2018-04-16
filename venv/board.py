@@ -114,7 +114,8 @@ class Board(object):
 		return jump_list
 
 
-	def valid_moves(self, i, j, jump = 0):		# return all valid moves for self.checkerBoard[i][j]
+	def valid_moves(self, piece, jump = 0):		# return all valid moves for self.checkerBoard[i][j]
+		i, j = piece
 		cur_grid = self.checkerBoard[i][j]
 		if cur_grid.piece == None:					# if no piece in that grid
 			return []

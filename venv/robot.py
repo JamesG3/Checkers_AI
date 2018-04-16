@@ -18,7 +18,7 @@ class Robot(object):
 		# then we need to find if there is other capture moves for this piece
 		moves = []
 		if selected_piece:
-			valid_moves = board.valid_moves(selected_piece[0], selected_piece[1], 1)
+			valid_moves = board.valid_moves(selected_piece, 1)
 
 			for move in valid_moves:
 				moves.append([selected_piece, move])
@@ -34,14 +34,14 @@ class Robot(object):
 					if board.checkerBoard[i][j].piece\
 						and board.checkerBoard[i][j].piece.player == player:
 
-						valid_moves = board.valid_moves(i, j)
+						valid_moves = board.valid_moves([i, j])
 						# if valid_moves:
 						for move in valid_moves:
 							moves.append([[i,j],move])
 		
 		else:				# if jump step exist
 			for piece in pieces:
-				valid_moves = board.valid_moves(piece[0], piece[1])
+				valid_moves = board.valid_moves(piece)
 				for move in valid_moves:
 					moves.append([piece, move])
 
