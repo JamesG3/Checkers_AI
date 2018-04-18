@@ -13,8 +13,11 @@ class Display(object):
 		self.stopGame = False
 
 
-	# show all valid moves for selected piece
 	def _show_moves(self, cur_piece, valid_moves):
+		'''
+		given a selected piece, shade the grids for all valid moves
+		show all valid moves for selected piece
+		'''
 		if not cur_piece:
 			return
 
@@ -27,7 +30,11 @@ class Display(object):
 	
 
 	def update_board(self, board, cur_piece, valid_moves):
-		self.screen.blit(self.background, (0, 0))			# draw a new clean board above the previous board
+		'''
+		update the checker borad
+		if game is over, show text box to declare the winner/draw
+		'''
+		self.screen.blit(self.background, (0, 0))	# draw a new clean board above the previous board
 		self._show_moves(cur_piece, valid_moves)
 		
 		# draw all pieces
@@ -53,8 +60,11 @@ class Display(object):
 		self.textbox_rect = self.textbox.get_rect()
 		self.textbox_rect.center = (conf.WINDOWSIZE / 2, conf.WINDOWSIZE / 2)
 
-	# convert mouse coord into a coord on checkerBoard
+	
 	def mouse_to_grid(self, mouse):
+		'''
+		convert mouse coord into a coord on checkerBoard
+		'''
 		return [mouse[0] / self.grid_size, mouse[1] / self.grid_size]
 
 
