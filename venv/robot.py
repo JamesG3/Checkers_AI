@@ -14,8 +14,13 @@ class Robot(object):
 
 
 	def _get_all_moves(self, board, player, selected_piece = None):
-		# if selected_piece is not None, means this piece just did a capture move
-		# then we need to find if there is other capture moves for this piece
+		'''
+		selected_piece is None if it's not after a capture move
+		Find all valid moves for current player
+		return all valid moves for current state
+		moves = [[piece, move], [piece, move], [piece, move], ....]
+		return type: list
+		'''
 		moves = []
 		if selected_piece:
 			valid_moves = board.valid_moves(selected_piece, 1)
@@ -25,30 +30,36 @@ class Robot(object):
 			
 			return moves
 
-		# if there is no piece selected -> not step after jump step		
+		# if there is no piece selected -> not after a capture move
 		pieces = board.check_jump(player)
 
-		if pieces == []:	# if there is no jump step for current player
-			for i in xrange(6):
+		if pieces == []:	# if there is no capture move for current player
+			for i in xrange(6):	# find all regular moves
 				for j in xrange(6):
 					if board.checkerBoard[i][j].piece\
 						and board.checkerBoard[i][j].piece.player == player:
 
 						valid_moves = board.valid_moves([i, j])
-						# if valid_moves:
+						
 						for move in valid_moves:
 							moves.append([[i,j],move])
 		
-		else:				# if jump step exist
-			for piece in pieces:
+		else:		# if capture moves exist
+			for piece in pieces:	# save all capture moves
 				valid_moves = board.valid_moves(piece)
 				for move in valid_moves:
 					moves.append([piece, move])
 
-		return moves 		# moves could be empty or only has one move
+		return moves 		# moves could be empty
 
 
 	def _heuristic(self, board, terminal = 0):
+		'''
+		heuristic function
+		return utility value for non-terminal and terminal state
+		using heuristic function
+		return type: int
+		'''
 		if terminal:
 			if board.white_piece_Num > board.black_piece_Num:		# AI win
 				return 1000
@@ -56,12 +67,17 @@ class Robot(object):
 				return -1000
 			else:													# draw
 				return 0
-
 		else:
 			return board.white_piece_Num - board.black_piece_Num
 
 
 	def _A_B_search(self, board, moves):
+		'''
+		start alpha beta search here
+		return the best move
+		action = [piece, move]
+		return type: list
+		'''
 		# return final utility value and the curresponding next step 
 		v, action = self._max_value(board, -1000, 1000, self.DEPTH)
 		return action
@@ -74,7 +90,7 @@ class Robot(object):
 		moves = self._get_all_moves(board, 'white')
 		if not moves:									# terminal state
 			return self._heuristic(board, 1), None
-														# if reach the depth, return utility value
+		# if reach the depth, return utility value
 		if depth == 0:
 			return self._heuristic(board), None
 
@@ -82,7 +98,7 @@ class Robot(object):
 		action = None
 
 		for piece, move in moves:
-			# make move on tmp board
+			# make move on tmp_board
 			tmp_board = self._make_move(board, piece, move)
 			new_val = self._min_value(tmp_board, alpha, beta, depth-1)
 			
@@ -115,8 +131,6 @@ class Robot(object):
 		v = float('Inf')
 
 		for piece, move in moves:
-			# print "black"
-			# print piece, move
 			# make move on tmp_board
 			tmp_board = self._make_move(board, piece, move)
 			new_val = self._max_value(tmp_board, alpha, beta, depth-1)[0]
@@ -135,6 +149,12 @@ class Robot(object):
 
 
 	def _make_move(self, board, piece, move):
+		'''
+		make a deepcopy on given board object
+		make move on this tmp_board
+		return this tmp_board
+		return type: object
+		'''
 		tmp_board = copy.deepcopy(board)
 		if abs(piece[0] - move[0]) == 2:		# jump step
 			tmp_board.remove([(piece[0] + move[0]) / 2, (piece[1] + move[1]) / 2])
@@ -145,14 +165,18 @@ class Robot(object):
 
 		
 	def choose_move(self, board, selected_piece = None):
-		# return None if no move
-		# return the best (piece, move)
+		'''
+		Get all valid moves by calling function _get_all_moves()
+		Get the best action by calling function _A_B_search()
+		return the best action
+		return [] if no valid move
+		return type: list
+		'''
 
 		self.max_depth = 0				# reset all counters
 		self.total_nodeNum = 0
 		self.max_prunNum = 0
 		self.min_prunNum = 0
-
 
 		moves = self._get_all_moves(board, 'white', selected_piece)
 		
@@ -172,14 +196,6 @@ class Robot(object):
 			print '======================'
 
 			return action
-
-
-		# call _get_all_moves() to get moves
-		# call _A_B_search to get best move
-		# return that best move
-
-		# if there is no valid move, return None, and change turn in checkers.py
-		# else return piece and it's best move
 
 
 
