@@ -13,24 +13,14 @@ class Robot(object):
 		self.DEPTH = AI_depth
 
 
-	def _get_all_moves(self, board, player, selected_piece = None):
+	def _get_all_moves(self, board, player):
 		'''
-		selected_piece is None if it's not after a capture move
 		Find all valid moves for current player
 		return all valid moves for current state
 		moves = [[piece, move], [piece, move], [piece, move], ....]
 		return type: list
 		'''
 		moves = []
-		if selected_piece:
-			valid_moves = board.valid_moves(selected_piece, 1)
-
-			for move in valid_moves:
-				moves.append([selected_piece, move])
-			
-			return moves
-
-		# if there is no piece selected -> not after a capture move
 		pieces = board.check_jump(player)
 
 		if pieces == []:	# if there is no capture move for current player
@@ -164,7 +154,7 @@ class Robot(object):
 
 
 		
-	def choose_move(self, board, selected_piece = None):
+	def choose_move(self, board):
 		'''
 		Get all valid moves by calling function _get_all_moves()
 		Get the best action by calling function _A_B_search()
@@ -178,7 +168,7 @@ class Robot(object):
 		self.max_prunNum = 0
 		self.min_prunNum = 0
 
-		moves = self._get_all_moves(board, 'white', selected_piece)
+		moves = self._get_all_moves(board, 'white')
 		
 		if not moves:
 			return []

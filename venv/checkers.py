@@ -18,7 +18,6 @@ class Checkers:
 		self.turn = None
 		self.valid_moves = []
 
-		self.capture_move = 0
 		self.curr_piece = None
 
 		self.Rbt_noMove = 0
@@ -43,8 +42,6 @@ class Checkers:
 		self.turn = "black" if self.turn == "white" else "white"
 		self.curr_piece = None
 		self.valid_moves = []
-		self.capture_move = 0
-
 
 	def _has_move(self, player):
 		'''
@@ -68,11 +65,11 @@ class Checkers:
 		Print out the message
 		'''
 		if self.board.white_piece_Num > self.board.black_piece_Num:
-			self.display.show_msg("Haha you lose! Click Right Key to Restart")
+			self.display.show_msg("HaHa You Lose! Click Right Key to Restart")
 			pygame.display.update()
 
 		elif self.board.white_piece_Num < self.board.black_piece_Num:
-			self.display.show_msg("Congratulation, you win! Click Right Key to Restart")
+			self.display.show_msg("Congratulation, You Win! Click Right Key to Restart")
 			pygame.display.update()
 		
 		else:
@@ -88,7 +85,6 @@ class Checkers:
 		self.board = board.Board()
 		self.turn = None
 		self.valid_moves = []
-		self.capture_move = 0
 		self.curr_piece = None
 		self.Rbt_noMove = 0
 		self.Hum_noMove = 0
@@ -124,7 +120,7 @@ class Checkers:
 		'''
 		Keep monitoring pygame event until first move is choosen
 		'''
-		self.display.show_msg("Who goes first? 1: U / 2: Me")
+		self.display.show_msg("Who goes first? 1: You / 2: AI")
 		pygame.display.update()
 
 		for event in pygame.event.get():
@@ -186,37 +182,17 @@ class Checkers:
 		# If yes, continue. If not, change turn.
 		check_move()
 		if self.turn == "white":
-			if not self.capture_move:			# if not after a capture move
-				action = self.robot.choose_move(self.board)		# choose action
-				if action:
-					time.sleep(0.5)
-					piece, move = action
-					if abs(piece[0] - move[0]) == 2:	# capture move
-						self.capture_move = 1
-						self.board.remove([(piece[0] + move[0]) / 2, (piece[1] + move[1]) / 2])
-					self.board.move(piece, move)
-					self.curr_piece = move
-					time.sleep(0.5)
-				else:
-					self._changeTurn()
-				
-			if self.capture_move:	# check whether there is another capture for current piece
-				action = self.robot.choose_move(self.board, self.curr_piece)
-				if action:
-					time.sleep(0.5)
-					piece, move = action
+			action = self.robot.choose_move(self.board)		# choose action
+			if action:
+				time.sleep(0.5)
+				piece, move = action
+				if abs(piece[0] - move[0]) == 2:	# capture move
 					self.board.remove([(piece[0] + move[0]) / 2, (piece[1] + move[1]) / 2])
-					self.board.move(piece, move)
-					self.curr_piece = move
-					time.sleep(0.5)
-					
-					return	# break the current loop, keep looking whether there are other capture moves
-				
-				else:
-					self._changeTurn()	
-			else:
-				self._changeTurn()
-				
+				self.board.move(piece, move)
+				self.curr_piece = move
+				time.sleep(0.5)
+			
+			self._changeTurn()
 
 
 		# Human move
@@ -230,55 +206,31 @@ class Checkers:
 				sys.exit()
 
 			if event.type == MOUSEBUTTONDOWN:
-				if not self.capture_move:
-					jump_step = self.board.check_jump(self.turn)
+				jump_step = self.board.check_jump(self.turn)
 
-					grid = self.board.checkerBoard[self.mouse[0]][self.mouse[1]]
-					
-					# select piece
-					if grid.piece and grid.piece.player == self.turn:
-						if jump_step == []:
+				grid = self.board.checkerBoard[self.mouse[0]][self.mouse[1]]
+				
+				# select piece
+				if grid.piece and grid.piece.player == self.turn:
+					if jump_step == []:
+						self.curr_piece = self.mouse
+						self.valid_moves = self.board.valid_moves(self.curr_piece)
+					else:
+						if self.mouse in jump_step:
 							self.curr_piece = self.mouse
 							self.valid_moves = self.board.valid_moves(self.curr_piece)
-						else:
-							if self.mouse in jump_step:
-								self.curr_piece = self.mouse
-								self.valid_moves = self.board.valid_moves(self.curr_piece)
 
-					# choose a move
-					elif self.curr_piece and self.mouse in self.valid_moves:
-						self.board.move(self.curr_piece, self.mouse)
+				# choose a move
+				elif self.curr_piece and self.mouse in self.valid_moves:
+					self.board.move(self.curr_piece, self.mouse)
 
-						# if capture, then remove an adversary piece
-						if abs(self.curr_piece[0] - self.mouse[0]) == 2:
-							piece_rmv = ((self.curr_piece[0]+self.mouse[0])/2, (self.curr_piece[1]+self.mouse[1])/2)
-							self.board.remove(piece_rmv)
-							self.capture_move = 1
-							self.curr_piece = self.mouse
-
-						else:
-							self._changeTurn()
+					# if capture, then remove an adversary piece
+					if abs(self.curr_piece[0] - self.mouse[0]) == 2:
+						piece_rmv = ((self.curr_piece[0]+self.mouse[0])/2, (self.curr_piece[1]+self.mouse[1])/2)
+						self.board.remove(piece_rmv)
 
 
-				while self.capture_move:
-					self.valid_moves = self.board.valid_moves(self.curr_piece, 1)
-					self.display.update_board(self.board, self.curr_piece, self.valid_moves)
-					if not self.valid_moves:
-						self._changeTurn()
-						return
-					
-					else:
-						if pygame.mouse.get_pressed() == conf.LEFTKEY:
-							if self.mouse in self.valid_moves:
-								self.board.move(self.curr_piece, self.mouse)
-								piece_rmv = ((self.curr_piece[0]+self.mouse[0])/2, (self.curr_piece[1]+self.mouse[1])/2)
-								self.board.remove(piece_rmv)
-								self.curr_piece = self.mouse
-								continue
-						return
-
-
-
+					self._changeTurn()
 
 
 	def main(self):
