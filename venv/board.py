@@ -2,7 +2,7 @@ class Piece(object):
 	'''
 	two type of players: black and white
 	'''
-	def __init__(self, player, frozen = 0):
+	def __init__(self, player):
 		self.player = player
 
 class Grid(object):
