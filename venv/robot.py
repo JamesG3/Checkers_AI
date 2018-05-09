@@ -84,7 +84,9 @@ class Robot(object):
 		if depth == 0:
 			return self._heuristic(board), None
 
-		v = float('-Inf')
+		# v = float('-Inf')
+		v = -1000
+		
 		action = None
 
 		for piece, move in moves:
@@ -98,9 +100,12 @@ class Robot(object):
 			
 			if v >= beta:	# pruning
 				self.max_prunNum += 1
+				action = [piece, move]
+				return v, action
 			alpha = max(alpha, v)
 
-		if v == float('-Inf'):		# if there is no valid move -> terminal state
+		if v == -1000:		# if there is no valid move -> terminal state
+		# if v == float('-Inf'):		# if there is no valid move -> terminal state
 			return self._heuristic(board), None
 		else:
 			return v, action
@@ -118,7 +123,8 @@ class Robot(object):
 		if depth == 0:
 			return self._heuristic(board)
 		
-		v = float('Inf')
+		# v = float('Inf')
+		v = 1000
 
 		for piece, move in moves:
 			# make move on tmp_board
@@ -132,7 +138,8 @@ class Robot(object):
 				return v
 			beta = min(beta, v)
 
-		if v == float('Inf'):		# if terminal state
+		if v == 1000:		# if terminal state
+		# if v == float('Inf'):		# if terminal state
 			return self._heuristic(board)
 		else:
 			return v

@@ -179,7 +179,7 @@ class Checkers:
 				self._choose_first_move()
 
 		# Check whether current player has move
-		# If yes, continue. If not, change turn.
+		# If yes, continue. Otherwise, change turn.
 		check_move()
 		if self.turn == "white":
 			action = self.robot.choose_move(self.board)		# choose action

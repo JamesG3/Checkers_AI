@@ -13,8 +13,8 @@ WINDOWSIZE = 696
 
 # robot AI level
 DEPTH_EASY = 2
-DEPTH_MID = 4
-DEPTH_HARD = 8
+DEPTH_MID = 6
+DEPTH_HARD = 10
 
 # time limit setting
 TIME_LIMIT = 15
